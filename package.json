@@ -6,6 +6,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
     "bulma": "^0.8.0",
     "gatsby": "^2.13.31",
     "gatsby-image": "^2.0.23",
@@ -29,8 +31,10 @@
     "gatsby-syntax-highlights-dracula": "^0.1.5",
     "gatsby-transformer-remark": "^2.6.9",
     "gatsby-transformer-sharp": "^2.1.9",
+    "highlight": "^0.2.4",
     "lodash": "^4.17.15",
     "lodash-webpack-plugin": "^0.11.4",
+    "marked": "^1.0.0",
     "netlify-cms-app": "^2.9.6",
     "node-sass": "^4.11.0",
     "parcel-bundler": "^1.12.4",
@@ -40,6 +44,8 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-helmet": "^5.2.0",
+    "react-markdown": "^4.3.1",
+    "request": "^2.88.2",
     "trianglify": "^2.0.0",
     "uuid": "^3.2.1"
   },

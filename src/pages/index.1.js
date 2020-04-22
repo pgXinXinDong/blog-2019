@@ -1,78 +1,22 @@
-import React ,{useState ,useEffect} from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
-import hljs from 'highlight.js';
-import {Link} from 'gatsby'
-import marked from 'marked'
-import Navbar from '../components/Navbar'
+import { Link, graphql } from 'gatsby'
 import Img from 'gatsby-image'
-import logo from '../img/logo.svg'
-import Quote from '../components/Quote'
 import Layout from '../components/Layout'
-
+import Navbar from '../components/Navbar'
+import Quote from '../components/Quote'
+import logo from '../img/logo.svg'
 import axios from "axios"
 
-const rawMarkup= (item)=>{
- 
-  if( typeof item == "undefined") return 
-  marked.setOptions({
-    renderer: new marked.Renderer(),
-    gfm: true,
-    tables: true,
-    breaks: true,
-    pedantic: false,
-    sanitize: true,
-    smartLists: true,
-    smartypants: false,
-    highlight: function(code) {
-      return hljs.highlightAuto(code).value;
-    }
-  });
-  
-  var rawMarkup = marked( item ? item :null)
-  return { __html: rawMarkup }
-}
-
-const getBlogList = ()=>{
-  return axios.post("/api/blog/list",{
-    firstname:"lisi",
-    lastname:"张三"
-  })
-}
-const getBlogNum = ()=>{
-  return axios.post("/api/blog/num",{})
-}
 
 
-const  useGetBlog = ()=>{
-  const [loading, setLoading] = useState(true);
-  const [blog, setBlog] = useState({});
-  const [num,setNum]  = useState({})
-  useEffect(()=>{
-    axios.all([getBlogList(),getBlogNum()])
-    .then(axios.spread((res1,res2)=>{
-      setLoading(false)
-      setBlog(res1.data.data.content)
-      setNum(res2.data.data)
-      
-    }))
-    .catch(err=>{
-      console.log("err",err)
-    })
-  },[])
-  return [loading, blog,num];
-}
-
-const IndexPage = () => { 
-  const [loading,blog,num] = useGetBlog()
-
-  if(loading){
-    return<div>loading</div>
-  }
-
-  return(
+const IndexPage = ({
+  data: { heroimg, tagJavaScript, tagSource, tagSpec, tagTotal, latestPosts },
+}) => {
+  return (
     <Layout>
       <section className="hero has-gatsby-img">
-        <img className="index-logo-bg" src={require("../img/hero.jpg")}  />
+        <Img fluid={heroimg.childImageSharp.fluid} />
         <div className="hero-head">
           <Navbar />
         </div>
@@ -97,6 +41,7 @@ const IndexPage = () => {
           </svg>
         </div>
       </section>
+
       <section className="section">
         <div className="container">
           <Quote
@@ -108,6 +53,7 @@ const IndexPage = () => {
           />
         </div>
       </section>
+
       <section className="section">
         <div className="container has-text-centered">
           <div className="content">
@@ -120,10 +66,10 @@ const IndexPage = () => {
             <div className="column">
               <Link
                 className="has-text-dark is-block"
-                to="/archives1?search=%23JavaScript"
+                to="/archives?search=%23JavaScript"
               >
                 <div className="box has-background-light">
-                  <h2 className="heading">{num.js} 篇文章</h2>
+                  <h2 className="heading">{tagJavaScript.totalCount} 篇文章</h2>
                   <h1 className="title">JAVASCRIPT</h1>
                 </div>
               </Link>
@@ -131,10 +77,10 @@ const IndexPage = () => {
             <div className="column">
               <Link
                 className="has-text-dark is-block"
-                to="/archives1?search=%23闲读源码"
+                to="/archives?search=%23闲读源码"
               >
                 <div className="box has-background-light">
-                  <h2 className="heading">{num.code} 篇文章</h2>
+                  <h2 className="heading">{tagSource.totalCount} 篇文章</h2>
                   <h1 className="title">闲读源码</h1>
                 </div>
               </Link>
@@ -142,10 +88,10 @@ const IndexPage = () => {
             <div className="column">
               <Link
                 className="has-text-dark is-block"
-                to="/archives1?search=%23闲读规范"
+                to="/archives?search=%23闲读规范"
               >
                 <div className="box has-background-light">
-                  <h2 className="heading">{num.eslint} 篇文章</h2>
+                  <h2 className="heading">{tagSpec.totalCount} 篇文章</h2>
                   <h1 className="title">闲读规范</h1>
                 </div>
               </Link>
@@ -153,7 +99,7 @@ const IndexPage = () => {
             <div className="column">
               <Link className="has-text-dark is-block" to="/archives">
                 <div className="box has-background-light">
-                  <h2 className="heading">{num.all} 篇文章</h2>
+                  <h2 className="heading">{tagTotal.totalCount} 篇文章</h2>
                   <h1 className="title">全部博文</h1>
                 </div>
               </Link>
@@ -161,28 +107,40 @@ const IndexPage = () => {
           </div>
         </div>
       </section>
+
+      <section className="section">
+        <div className="container">
+          <Quote
+            quote={{
+              content: `"Either write something worth reading or do something worth writing."`,
+              author: `Benjamin Franklin`,
+              source: ``,
+            }}
+          />
+        </div>
+      </section>
+
       <section className="section">
         <div className="container">
           <div className="content">
             <p className="has-text-centered">最近文章：</p>
-            {blog.length !== undefined ? blog.map((post)=>{
-
-              return<div className="box" key={post.id}>
+            {latestPosts.edges.map(({ node: post }) => (
+              <div className="box" key={post.id}>
                 <p>
-                  <Link className="is-link-reverse" to={post.slug}>
-                    <strong>{post.title}</strong>
+                  <Link className="is-link-reverse" to={post.fields.slug}>
+                    <strong>{post.frontmatter.title}</strong>
                   </Link>
                   <span> &bull; </span>
-                  <small>{post.date}</small>
+                  <small>{post.frontmatter.date}</small>
                 </p>
-                <p>{post.description}</p>
+                <p>{post.frontmatter.description || post.excerpt}</p>
                 <p>
-                  <Link className="button is-small" to={post.slug}>
+                  <Link className="button is-small" to={post.fields.slug}>
                     继续阅读 →
                   </Link>
                 </p>
               </div>
-            }):null}
+            ))}
           </div>
           <Link
             className="button has-text-weight-light is-medium is-light is-fullwidth"
@@ -192,16 +150,96 @@ const IndexPage = () => {
           </Link>
         </div>
       </section>
-      
-    
-
-      {/* <div dangerouslySetInnerHTML = {rawMarkup(blog.content)}></div> */}
     </Layout>
   )
-
-  
 }
 
-
+IndexPage.propTypes = {
+  data: PropTypes.shape({
+    heroimg: PropTypes.shape({
+      fluid: PropTypes.any,
+    }),
+    tagJavaScript: PropTypes.shape({
+      totalCount: PropTypes.number,
+    }),
+    tagSource: PropTypes.shape({
+      totalCount: PropTypes.number,
+    }),
+    tagSpec: PropTypes.shape({
+      totalCount: PropTypes.number,
+    }),
+    tagTotal: PropTypes.shape({
+      totalCount: PropTypes.number,
+    }),
+    latestPosts: PropTypes.shape({
+      edges: PropTypes.array,
+    }),
+  }),
+}
 
 export default IndexPage
+
+export const pageQuery = graphql`
+  query IndexQuery {
+    heroimg: file(relativePath: { eq: "hero/pexels-photo-19031.jpg" }) {
+      childImageSharp {
+        fluid(maxWidth: 1920) {
+          ...GatsbyImageSharpFluid
+        }
+      }
+    }
+    tagJavaScript: allMarkdownRemark(
+      filter: {
+        frontmatter: {
+          layout: { eq: "blog-post" }
+          tags: { in: ["JavaScript"] }
+        }
+      }
+    ) {
+      totalCount
+    }
+    tagSource: allMarkdownRemark(
+      filter: {
+        frontmatter: { layout: { eq: "blog-post" }, tags: { in: ["闲读源码"] } }
+      }
+    ) {
+      totalCount
+    }
+    tagSpec: allMarkdownRemark(
+      filter: {
+        frontmatter: { layout: { eq: "blog-post" }, tags: { in: ["闲读规范"] } }
+      }
+    ) {
+      totalCount
+    }
+    tagTotal: allMarkdownRemark(
+      filter: { frontmatter: { layout: { eq: "blog-post" } } }
+    ) {
+      totalCount
+    }
+    latestPosts: allMarkdownRemark(
+      sort: { order: DESC, fields: [frontmatter___date] }
+      filter: {
+        fields: { draft: { ne: true } }
+        frontmatter: { layout: { eq: "blog-post" } }
+      }
+      limit: 5
+    ) {
+      edges {
+        node {
+          excerpt(pruneLength: 200)
+          id
+          fields {
+            slug
+          }
+          frontmatter {
+            title
+            description
+            layout
+            date(formatString: "MMMM DD, YYYY")
+          }
+        }
+      }
+    }
+  }
+`

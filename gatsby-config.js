@@ -6,6 +6,10 @@ module.exports = {
       'CRIMX 的博客，主要记录 Web 前端相关的一些内容，偶尔涉及其它方面。',
     social: require('./social-media.json')
   },
+  proxy: {
+    prefix: "/api",
+    url: "http://localhost:3000",
+  },
   plugins: [
     'gatsby-plugin-react-helmet',
     'gatsby-plugin-sass',
