@@ -64,7 +64,6 @@ app.post("/api/blog/num",(req,res)=>{
 
 
 app.post("/api/blog/allList",(req,res)=>{
-  console.log("sssss",req.body)
   let urlNum ="http://mock-fe.internal.weimob.com/mock/5e9d61b32ce0aa002019a148/blog/list";
   let requestData = JSON.stringify(req.body)
   getBlogIndexData(urlNum,requestData).then((result)=>{
@@ -72,6 +71,21 @@ app.post("/api/blog/allList",(req,res)=>{
   })
 })
 
+
+app.post("/api/blog/details",(req,res)=>{
+  let urlNum ="http://mock-fe.internal.weimob.com/mock/5e9d61b32ce0aa002019a148/blog/details";
+  let requestData = JSON.stringify(req.body)
+  getBlogIndexData(urlNum,requestData).then((result)=>{
+    res.send(result)
+  })
+})
+app.post("/api/blog/about",(req,res)=>{
+  let urlNum ="http://mock-fe.internal.weimob.com/mock/5e9d61b32ce0aa002019a148/blog/about";
+  let requestData = JSON.stringify(req.body)
+  getBlogIndexData(urlNum,requestData).then((result)=>{
+    res.send(result)
+  })
+})
 
 app.listen(3000,()=>{
   console.log("服务启动成功")
